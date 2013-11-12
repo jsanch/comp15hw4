@@ -75,8 +75,6 @@ void Factory::getPkgOrder(){
 
  		 if ( length_PkgOrder == capacity_PkgOrder) expandPkgOrder();
 	}
-
-
 }
 
 //----------------------------------------------------------------------------
