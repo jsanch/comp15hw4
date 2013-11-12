@@ -1,0 +1,96 @@
+#!/bin/sh
+#
+# make_fac_data
+#   purpose: generate random package data for ALS (assembly line simulator)
+#     usage: make_fac_data [-n num-packages] [-u max-units] [-i max-interval]
+#      note: -z option enables zero-sized packages (default is off)
+#      note: default num-packages is 100
+#	and: default max-units is 100
+#
+#      hist: 2013-10-16 added -z flag
+#      hist: 2013-10-16 created (molay@cs.tufts.edu)
+#
+
+	MAX_PACKS=10
+	MAX_UNITS=10
+	MAX_START=10
+	MAX_DTIME=10
+	UNIT_BASE=1
+
+	FMT="Package order number S%03d with %d units arrived at time %d\n"
+
+	main()
+	{
+		process_args "$@"
+		make_packages
+		return 0
+	}
+
+	#
+	# process args -- look for -n and -u and -i options 
+	#
+	process_args()
+	{
+		while test $# -gt 0
+		do
+			case $1 in
+				-n)	test $# -eq 0 && usage -n
+					shift
+					MAX_PACKS=$1
+					;;
+				-u)	test $# -eq 0 && usage -u
+					shift
+					MAX_UNITS=$1
+					;;
+				-i)	test $# -eq 0 && usage -i
+					shift
+					MAX_DTIME=$1
+					;;
+				-z)	UNIT_BASE=0
+					;;
+				-h)	usage
+					;;
+				*)	usage "bad arg $1"
+					;;
+			esac
+			shift
+		done
+	}
+
+	#
+	# report error and print usage
+	#
+	usage()
+	{
+		if test $# -gt 0
+		then
+			echo "ERROR with $1"
+		fi
+		printf "usage: make_fac_data [-n num-packages] [-u max-units] "
+		echo   " [-i max-time-interval]"
+		exit 1
+	}
+	#
+	# make_packages
+	#  does: loops some number of times up to MAX_PACKS
+	#
+	make_packages()
+	{
+		mp_num=$(($RANDOM % $MAX_PACKS ))
+		mp_i=0
+		mp_t=$(($RANDOM % $MAX_START ))		# start time
+		while test $mp_i -lt $mp_num
+		do
+			mp_u=$(($UNIT_BASE + $RANDOM % $MAX_UNITS))
+			printf "$FMT" $mp_i $mp_u $mp_t
+			mp_t=$(( $mp_t + 1 + ( $RANDOM % $MAX_DTIME ) ))
+			mp_i=$(( $mp_i + 1 ))
+		done
+	}
+
+	# -----------------------------
+	# call main
+	# -----------------------------
+
+	main "$@"
+	exit $rv

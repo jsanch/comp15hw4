@@ -1,0 +1,37 @@
+Algorithm. 
+
+0) Establish count and general variables. 
+
+time = 0 
+PackageQueue q;
+
+0.5) if queue is empty, jump to step 3. 
+
+1) Do work on currently loaded packages.
+	- bool isFrontPkgProcessed() --> check if the package on the front( the one being worked on) is processed. 
+		-true --> means that  a pkg was completed (which means we start on the next on the queue).
+			-do_work(
+		
+		-false --> means that work must be done on the first pacakge on queue. 
+	
+
+2) Remove finished. 
+	q.dequeue() --> removes the front of the queueue. 
+3) Add newly arrived packages. 
+
+
+
+bool isFrontPkgProcessed() {
+	Pacakge front = q.getFront();
+	return front.isProcessed; 
+
+}
+
+void do_work(int workers, double rates[]){
+	
+
+}
+
+
+notes: 
+	worker can not add a package and work on it at the same turn. 

@@ -1,0 +1,57 @@
+Sample usage 
+
+//////////////////////
+workers= 1 , rate = 2
+//////////////////////
+//data 1
+Input: 
+Package order number S000 with 2 units arrived at time 4
+Output: 
+Package order number S000 with 2 units arrived at time 4 and left at time 5
+
+//data 2
+Input: 
+Package order number S000 with 2 units arrived at time 0
+Package order number S001 with 2 units arrived at time 1
+Package order number S002 with 8 units arrived at time 11
+Package order number S003 with 9 units arrived at time 13
+Output: 
+Package order number S000 with 2 units arrived at time 0 and left at time 1
+Package order number S001 with 2 units arrived at time 1 and left at time 2
+Package order number S002 with 8 units arrived at time 11 and left at time 15
+Package order number S003 with 9 units arrived at time 13 and left at time 20
+
+//data 3
+Input: 
+Package order number S000 with 8 units arrived at time 4
+Output: 
+Package order number S000 with 8 units arrived at time 4 and left at time 8
+
+//data 4
+Input: 
+Package order number S000 with 2 units arrived at time 4
+Package order number S001 with 6 units arrived at time 8
+Package order number S002 with 5 units arrived at time 17
+Package order number S003 with 3 units arrived at time 23
+Package order number S004 with 1 units arrived at time 28
+Package order number S005 with 10 units arrived at time 30
+Output: 
+Package order number S000 with 2 units arrived at time 4 and left at time 5
+Package order number S001 with 6 units arrived at time 8 and left at time 11
+Package order number S002 with 5 units arrived at time 17 and left at time 20
+Package order number S003 with 3 units arrived at time 23 and left at time 25
+Package order number S004 with 1 units arrived at time 28 and left at time 29
+Package order number S005 with 10 units arrived at time 30 and left at time 35
+//data 5
+Input: 
+Package order number S000 with 8 units arrived at time 6
+Package order number S001 with 8 units arrived at time 7
+Package order number S002 with 4 units arrived at time 13
+Package order number S003 with 9 units arrived at time 14
+Package order number S004 with 8 units arrived at time 21
+Output: 
+Package order number S000 with 8 units arrived at time 6 and left at time 10
+Package order number S001 with 8 units arrived at time 7 and left at time 14
+Package order number S002 with 4 units arrived at time 13 and left at time 16
+Package order number S003 with 9 units arrived at time 14 and left at time 21
+Package order number S004 with 8 units arrived at time 21 and left at time 25

@@ -1,0 +1,64 @@
+Assembly Line Simulator.
+
+/// Overview
+ALS is a Facility(Assemply Line) that processes packages.
+Goal: Check the efficiency of an assembly line and how different workers change productivity.
+
+/// Important structures:
+Packages-> are cin'ed. Each package has an amount of units to be processed.
+
+Workers -> relatively static structures with only one value (the rate to which they can process units.). Workers will be handled with a dynamic aray. NOTE: this assigmemnt will only handle one Worker.
+
+The Assembly Line is a class with various methods that process Packages with an amount of workers.
+
+A Factory is a class that passes amount of workers and packages to the Assembly Line. Also it gets a package order/list from the cin stream and passes this to an Assembly Line.
+
+
+/// Program Interface
+	Program will take in the following data:
+		a) Number of Wrokers (num_workers) and their rates (ratesList) as the argument.
+		b) List of packages  (list_of_packages) on a separate file. This data will be accessed with cin. It will be given in the following format :
+			Package order number S123 with 9 units arrived at time 0
+
+///	Use.
+	This program was adapted to use with the facmain.cpp  file. In the case that you want to test in with another file, please read the following:
+		The frontier class of my program is the Factory class. To process a list of packages you must make your own main, and in it  use the run() and pass the number of workers and their respective rates. Also, you must run the program along with a file contating pacakge orders
+
+/// Class Interfaces.
+
+Factory -> Handles input of Pkgs into Dynamic array and runs Assembly Lines.
+	Methods:
+		int run(int num_workers, double rates[])
+		void getPkgOrder();
+
+AssemblyLine -> Processes packages and outputs to console the shipping time.
+	Methods:
+		void process(Package * PkgOrder, int orderSize);
+		void ship(Package * currentPkg);
+
+PackageQueue ->  A queue implementation using linked lists.
+	Methoss:
+		bool isEmpty();
+        void enqueue(Package pkg);
+        void dequeue();
+        void display();
+		Package * getFront();
+
+
+/// Inheritance hierarchy:
+
+facmain
+	Factory
+		AssemblyLine
+			Worker
+			PackageQueue
+				Package
+				node
+
+
+//NOTES:
+ADD Ccompilation instructions
+
+// no talking about cin, or any function levels
+
+/// Notes, dont go over the lines

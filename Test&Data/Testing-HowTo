@@ -1,0 +1,71 @@
+2013-10-16
+
+How to use make_fac_data to test your Assembly Line Simulator
+------------------------------------------------------------------
+
+We have provided you with two programs:
+
+	make_fac_data  -- a script to generate sample data
+	als15          -- a reference program that produces correct output
+
+-----------------------------------------------------------------------
+GENERATING DATA
+-----------------------------------------------------------------------
+To generate sample data, type
+
+	    ./make_fac_data 
+
+	This will create randomly generated orders in the correct input format.
+
+	To capture the data in a file, you can type:
+
+	    ./make_fac_data  > data1
+
+	You can use any filename for the capture file.  In fact, you can make
+	several data sets for testing and use them over and over until your
+	program work.
+
+-----------------------------------------------------------------------
+TESTING WITH SAMPLE DATA
+-----------------------------------------------------------------------
+To test your program, do this:
+
+	    ./a.out < data1 > my_output
+
+	then you can examine my_output to see if it is correct given the
+	contents of data1. (you can of course call your output file any name you
+	like.
+
+	To obtain the correct output, do this:
+
+	    ./als15 < data1 > correct
+
+	Now you can type:
+
+	    diff my_output correct
+
+	and see what the differences are.
+
+-----------------------------------------------------------------------
+VARYING SAMPLE DATA RANGES
+-----------------------------------------------------------------------
+Varying the amount and range of data.  The default settings on the make_fac_data
+script are that 
+
+	  it will generate between 0 and 9 packages
+	  it will each package will have between 0 and 9 units
+	  the first package will arrive at a time between 0 and 9
+	  the interval between one package and the next will be between 1 and 10 minutes
+
+	BUT you can modify those settings with command line arguments:
+
+	  e.g. ./make_fac_data -n 2000 -u 20 -i 1
+
+	  will make up to 2000 packages, each with up to 20 units and have them
+	  arrive every minute.
+
+	you may use any combination of -n, -u, -i
+
+AND	if you use the -z option to the program then the program might
+	generate packages with 0 units.  The default is not to do so
+	
