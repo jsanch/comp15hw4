@@ -118,46 +118,4 @@ Factory::~Factory(){
 
 
 
-///////////////DEBUG FUNCTIONS.
-//----------------------------------------------------------------------------
-// expandPkgOrder(): Prints the PkgOrder for debuggin uses.
-// Input:          	None
-// Output:         	None
-//----------------------------------------------------------------------------
-// void Factory::printPkgOrder(){
-// 	for ( int i = 0; i < length_PkgOrder; i++){
-// 	cout <<"/////////////////////"<<"PKG"<< i << "////////////////////" << endl;
-//  	cout << "order_number:" << PkgOrder[i].order_number << endl;
-// 	cout << "unit_number:" << PkgOrder[i].unit_number << endl;
-// 	cout << "time_Arrived:" << PkgOrder[i].time_Arrived << endl ;
-// 	cout << "time_Shipped:" << PkgOrder[i].time_Shipped << endl;
-// 	cout << "isShipped:" << PkgOrder[i].isShipped << endl ;
-// 	}
-
-// }
-
-//----------------------------------------------------------------------------
-// expandPkgOrder(): Resizes the PkgOrder array in case it is needed.
-// Input:          	None
-// Output:         	None
-// Note: not used in this assigment. Might use in the future.
-//----------------------------------------------------------------------------
-// Package *  Factory::getPkgOrderCopy(){
-// 	Package * copy = new Package[capacity_PkgOrder];
-// 		for (int i = 0; i < length_PkgOrder; i++) {
-// 		copy[i].order_number  = PkgOrder[i].order_number ;
-// 		copy[i].unit_number  = PkgOrder[i].unit_number ;
-// 		copy[i].time_Arrived  = PkgOrder[i].time_Arrived ;
-// 		copy[i].time_Shipped  = PkgOrder[i].time_Shipped ;
-// 		copy[i].isShipped  = PkgOrder[i].isShipped ;
-// 	}
-// 		for (int e = length_PkgOrder; e < capacity_PkgOrder; e ++){
-// 		copy[e].order_number = '\0';  // Null terminator for de-bugging
-// 		copy[e].unit_number = '\0';
-// 		copy[e].time_Arrived = '\0';
-// 		copy[e].time_Shipped = '\0';
-// 		copy[e].isShipped = '\0';
-// 		}
-// 	return copy;
-// }
 
