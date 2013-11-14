@@ -11,114 +11,240 @@
 // Input:          	An Integer, workers. And a double (array), ratesList.
 // Output:          None
 //----------------------------------------------------------------------------
-AssemblyLine::AssemblyLine(int workers, double *rateslist){
-	if ( workers != 1){
-		cerr << " Expecting only 1 worker for this assigment";
-		exit(1);
-	}
-	worker.rate = rateslist[0]; // for this assigment,
-}								// assuming only one worker, with one rate.
+AssemblyLine::AssemblyLine(){
+	double workRate = 0;
+	currentPkg = NULL;
+}
 
+void AssemblyLine::set_workRate(double r){
+	workRate = r;
+}
 
-
-//----------------------------------------------------------------------------
-// process(Package * PkgOrder , int orderSize):	"The brains" of the Assembly
-//			Line. Takes in an order of packages, works on them on simulated
-//			real time and finally ships them.
-// Input:   An Array, PkgOrder, of size orderSize.
-// Output:  None
-//----------------------------------------------------------------------------
-void AssemblyLine::process(Package * PkgOrder , int orderSize){
-	Package * currentPkg = NULL; // used to mark if there is a pkg being worked
-	bool endloop = false;  // used to break the loop.
-	int i=0;  //the simulated time counter.
-
-	while ( endloop != true) { // start loop. each loop represents a minute.
-	//Case 1: Do work on current Pkg. If no current Pkg, get it from PkgQueue.
-		if ( ! PkgQueue.isEmpty() )  {
-			if(currentPkg == NULL){
-					currentPkg =  PkgQueue.getFront();
-					currentPkg->units_worked  += worker.rate;
-			} else {
-				currentPkg->units_worked  += worker.rate;
-			}
-		}
-	//Case 2: Check if currentPkg is proccessed. If so, Ship.
-		if(currentPkg != NULL) {
-			//case 1: is the current package ready for shipping? if so ship.
-			if (currentPkg->units_worked >= currentPkg->unit_number){
-				PkgQueue.dequeue();
-				currentPkg->time_Shipped = i;
-				ship (currentPkg);
-					// if last packagehas shipped, end it.
-					if (currentPkg->order_number ==  PkgOrder[orderSize-1].order_number ) {
-						endloop = true;
-					}
-				currentPkg = NULL; // signal that there is no current package to work on.
-			}
-		}
-		// Use a  Timer
-	//Case3: Check if Pkg has arrived. if so, put on the queue.
-		for (int j=0; j < orderSize; j++){
-			if ( PkgOrder[j].time_Arrived == i ) {
-				PkgQueue.enqueue( PkgOrder[j]);
-				break;
-			}
-		}
-		i++;
-	}
+void AssemblyLine::set_ID(int id){
+	assemblyLineID = id;
 }
 
 //----------------------------------------------------------------------------
+// process(PackageQueue  pkgBufferQ):	"The brains" of the Assembly
+//			Line. Takes in an order of packages, works on them on simulated
+//			real time and finally ships them.
+// Input:   Aa queue, PkgOrder.
+// Output:  None
+//----------------------------------------------------------------------------
+void AssemblyLine::process(PackageQueue arrivingPkgBuffer, int pkgCount){
+	// arrivingPkgBuffer.display();
+	int timeUnit=0;
+	int arrivedPkgCount = pkgCount;
+	int	completedPkgCount = 0;
+
+	while( completedPkgCount != arrivedPkgCount  ){
+
+		//STEP 1
+		if (!processingPkgBuffer.isEmpty()) {
+			if (!isCurrentPkgLoaded()){
+				loadCurrentPkg();
+				completedPkgCount =  do_work(completedPkgCount, timeUnit);
+			}else{
+				completedPkgCount =  do_work(completedPkgCount, timeUnit);
+			}
+		}
+		//STEP 2  ship if completed
+		if (isCurrentPkgLoaded()){
+			if(isPkgCompleted(currentPkg)){
+				shipPkg(timeUnit); // puts package in a cmpleted Pkg Buffer.
+			}
+		}
+		//STEP 3 add packages that arrive to Pkgqueue
+			if (!arrivingPkgBuffer.isEmpty()){
+				handlePkgArrival(&arrivingPkgBuffer,timeUnit);
+			}
+
+		// tick tock
+			timeUnit++;
+	}
+	// completedPkgBuffer.display();
+
+}
+
+int AssemblyLine::do_work(int completedPkgCount, int timeUnit){
+		//adding workrate to amount worked.
+		currentPkg->units_worked += workRate;
+
+		//updating isCompleted value, in case it completes the package.
+		if (currentPkg->units_worked >= currentPkg->unit_number){
+			currentPkg->isCompleted = true;
+			completedPkgCount ++;
+
+		}
+	return completedPkgCount;
+}
+
+//precondition: arrivingPkgBuffer is NOT EMPTY
+void AssemblyLine::loadCurrentPkg(){
+		currentPkg = processingPkgBuffer.getFront(); //loading.
+}
+
+bool AssemblyLine::isPkgCompleted(Package *p){
+		if (p == NULL)
+			return false;
+		else
+			return p->isCompleted;
+}
+void AssemblyLine::setCompletedPkgCount(int n){
+		completedPkgCount = n;
+}
+
+//precondition: current package is completed.
+//precondition: CurrentPackage is loaded.
+void AssemblyLine::shipPkg(int timeUnit){
+		currentPkg->time_Shipped = timeUnit;
+		currentPkg->assemblyLineID= assemblyLineID;
+		print();
+		//add completed package to completed Pkg buffer
+		Package completedPkg = *currentPkg;
+		completedPkgBuffer.enqueue(completedPkg);
+		processingPkgBuffer.dequeue();
+
+		currentPkg = NULL;
+
+
+}
+
+void AssemblyLine::handlePkgArrival(PackageQueue * arrivingPkgBuffer, int timeUnit){
+
+	// getting the front of the arriving PkgBuffer.
+	Package * frontPkg = arrivingPkgBuffer->getFront();
+	// check if the frontPkg has arrived for the current timeUnit.
+	if ( frontPkg->time_Arrived == timeUnit) { //solo se mete una vez.
+		//add package to processsing queue
+		Package  newPkg = *frontPkg; //creating new, because other was a pointer.
+		processingPkgBuffer.enqueue (newPkg);
+		//remove arrived pacakge from arriving PkgBufferr
+		 arrivingPkgBuffer->dequeue();
+		 // frontPkg = arrivingPkgBuffer->getFront();
+	}
+	// else, dont do anything.
+
+}
+
+
+
+// checks if there is a current Package Laoded
+bool AssemblyLine::isCurrentPkgLoaded(){
+	return !(currentPkg == NULL);
+}
+
+
+// ----------------------------------------------------------------------------
 // ship():  prints a package's shipping info.
 // Input:   A Pointer to a Package.
 // Output: 	None
-//----------------------------------------------------------------------------
-void AssemblyLine::ship(Package * p){
-	cout<<"Package order number "<<p->order_number
-		<<" with "<<p->unit_number
-		<<" units arrived at time "<<p->time_Arrived
-		<<" and left at time "<<p->time_Shipped
+// ----------------------------------------------------------------------------
+void AssemblyLine::print(){
+	cout<<"Package order number "<<currentPkg->order_number
+		<<" with "<<currentPkg->unit_number
+		<<" units arrived at time "<<currentPkg->time_Arrived
+		<<" and left at time "<<currentPkg->time_Shipped
+		<<" from "<< currentPkg->assemblyLineID
 		<< endl;
 
 }
 
 
-// int main(){
-// 	//this is how run will use it...
-// 	int workers = 1;
-// 	double rates[1];
-// 	rates[0] = 2.00;
-// 	AssemblyLine l(workers,rates);
-
-// 	int orderSize = 5 ; // must be  the ACTUAL amount of pkgs.
-// 	Package * PkgOrder = new Package[orderSize];
-
-// 	PkgOrder[0].order_number= "S000"  	;	//from data5.
-// 	PkgOrder[0].unit_number = 8 ;
-// 	PkgOrder[0].time_Arrived =  6;
-
-// 	PkgOrder[1].order_number ="S001";
-// 	PkgOrder[1].unit_number = 8;
-// 	PkgOrder[1].time_Arrived =  7;
-
-// 	PkgOrder[2].order_number ="S002";
-// 	PkgOrder[2].unit_number = 4;
-// 	PkgOrder[2].time_Arrived =  13;
-
-// 	PkgOrder[3].order_number ="S003";
-// 	PkgOrder[3].unit_number = 9;
-// 	PkgOrder[3].time_Arrived =  14;
-
-// 	PkgOrder[4].order_number ="S004";
-// 	PkgOrder[4].unit_number = 8;
-// 	PkgOrder[4].time_Arrived =  21;
 
 
-
-// 	l.process(PkgOrder, orderSize);
-
-
-// 	return 0;
+//precondition: there are always Pkg left in buffer.
+// bool AssemblyLine::loadCurrentPkg(){
+// 	// it is called when there are no current packages.
+// 	// it assigns the next package in the buffer to the queue
+// 			if ( processingPkgBuffer.isEmpty && currentPkg == NULL ){
+// 			// if the Pkg queue is not empty and there is no current Pkg,
+// 			// load current Package.
+// 		}
 // }
 
+	// Package * currentPkg = NULL; // used to mark if there is a pkg being worked
+	// bool endloop = false;  // used to break the loop.
+	// int i=0;  //the simulated time counter.
+
+	// while ( endloop != true) { // start loop. each loop represents a minute.
+	// //Case 1: Do work on current Pkg. If no current Pkg, get it from processingPkgBuffer.
+	// 	if ( ! processingPkgBuffer.isEmpty() )  {
+	// 		if(currentPkg == NULL){
+	// 				currentPkg =  processingPkgBuffer.getFront();
+	// 				currentPkg->units_worked  += worker.rate;
+	// 		} else {
+	// 			currentPkg->units_worked  += worker.rate;
+	// 		}
+	// 	}
+	// //Case 2: Check if currentPkg is proccessed. If so, Ship.
+	// 	if(currentPkg != NULL) {
+	// 		//case 1: is the current package ready for shipping? if so ship.
+	// 		if (currentPkg->units_worked >= currentPkg->unit_number){
+	// 			processingPkgBuffer.dequeue();
+	// 			currentPkg->time_Shipped = i;
+	// 			ship (currentPkg);
+	// 				// if last packagehas shipped, end it.
+	// 				if (currentPkg->order_number ==  PkgOrder[orderSize-1].order_number ) {
+	// 					endloop = true;
+	// 				}
+	// 			currentPkg = NULL; // signal that there is no current package to work on.
+	// 		}
+	// 	}
+	// 	// Use a  Timer
+	// //Case3: Check if Pkg has arrived. if so, put on the queue.
+	// 	for (int j=0; j < orderSize; j++){
+	// 		if ( PkgOrder[j].time_Arrived == i ) {
+	// 			processingPkgBuffer.enqueue( PkgOrder[j]);
+	// 			break;
+	// 		}
+	// 	}
+	// 	i++;
+	// }
+// }
+
+
+
+
+
+////LAST ALGO.
+// void AssemblyLine::process(PackageQueue pkgBufferQ , int orderSize){
+// 	Package * currentPkg = NULL; // used to mark if there is a pkg being worked
+// 	bool endloop = false;  // used to break the loop.
+// 	int i=0;  //the simulated time counter.
+
+// 	while ( endloop != true) { // start loop. each loop represents a minute.
+// 	//Case 1: Do work on current Pkg. If no current Pkg, get it from processingPkgBuffer.
+// 		if ( ! processingPkgBuffer.isEmpty() )  {
+// 			if(currentPkg == NULL){
+// 					currentPkg =  processingPkgBuffer.getFront();
+// 					currentPkg->units_worked  += worker.rate;
+// 			} else {
+// 				currentPkg->units_worked  += worker.rate;
+// 			}
+// 		}
+// 	//Case 2: Check if currentPkg is proccessed. If so, Ship.
+// 		if(currentPkg != NULL) {
+// 			//case 1: is the current package ready for shipping? if so ship.
+// 			if (currentPkg->units_worked >= currentPkg->unit_number){
+// 				processingPkgBuffer.dequeue();
+// 				currentPkg->time_Shipped = i;
+// 				ship (currentPkg);
+// 					// if last packagehas shipped, end it.
+// 					if (currentPkg->order_number ==  PkgOrder[orderSize-1].order_number ) {
+// 						endloop = true;
+// 					}
+// 				currentPkg = NULL; // signal that there is no current package to work on.
+// 			}
+// 		}
+// 		// Use a  Timer
+// 	//Case3: Check if Pkg has arrived. if so, put on the queue.
+// 		for (int j=0; j < orderSize; j++){
+// 			if ( PkgOrder[j].time_Arrived == i ) {
+// 				processingPkgBuffer.enqueue( PkgOrder[j]);
+// 				break;
+// 			}
+// 		}
+// 		i++;
+// 	}
+// }

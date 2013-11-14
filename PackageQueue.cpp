@@ -65,6 +65,7 @@ void PackageQueue::dequeue(){
 // display():  Dsiplays de queue, front to back.
 // Input:   None
 // Output:  None
+// Note : For debugging purposes.
 //----------------------------------------------------------------------------
 void PackageQueue::display(){
   node *p = new node;
@@ -73,7 +74,22 @@ void PackageQueue::display(){
     cerr<<"Nothing to Display"<<endl;
   }else{
     while(p!=NULL){
+      cout << " ///////////////////////////" <<endl;
+      cout << "order_number : ";
       cout<<p->package.order_number<<endl;
+      cout << "unit_number : ";
+      cout<<p->package.unit_number <<endl;
+      cout << "units_worked : ";
+      cout<<p->package.units_worked<<endl;
+      cout << "time_Arrived : ";
+      cout<<p->package.time_Arrived<<endl;
+      cout << "time_Shipped : ";
+      cout<<p->package.time_Shipped<<endl;
+      cout << "isCompleted : ";
+      cout<<p->package.isCompleted<<endl;
+      cout << "assemblyLineID : ";
+      cout<<p->package.assemblyLineID<<endl;
+
       p = p->next;
     }
   }
