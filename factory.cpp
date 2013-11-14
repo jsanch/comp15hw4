@@ -9,26 +9,28 @@
 
 //----------------------------------------------------------------------------
 // Factory(): 		Initializes a dynamic Array for Pkg orders.
-// Input:          	None
+// Input:          	An int, num_assemblyLines and a pointer to array, rates.
 // Output:          None
 //----------------------------------------------------------------------------
-Factory::Factory(){
-
- 	PkgOrder = new Package[INIT_SIZE_PKG_BUFF];
-
-	// sets values to null.
-	for (int i = 0; i < INIT_SIZE_PKG_BUFF; i++) {
-		PkgOrder[i].order_number = '\0';
-		PkgOrder[i].unit_number = '\0';
-		PkgOrder[i].time_Arrived = '\0';
-		PkgOrder[i].time_Shipped = '\0';
-		PkgOrder[i].isShipped = '\0';
-	}
-
-	length_PkgOrder = 0;
-	capacity_PkgOrder = INIT_SIZE_PKG_BUFF;
+Factory::Factory(int num_assemblyLines, double rates[]){
+	 addAssemblyLines(num_assemblyLines, rates);
+	// get Pkgs from file and insert to the pacakgeBuffer.
+	 pkgCount = 0;
+	getPkgOrder();
 
 }
+
+void Factory::addAssemblyLines(int num_assemblyLines, double rates[] ){
+	aLineList = new AssemblyLine[num_assemblyLines];
+
+	for(int i = 0; i<num_assemblyLines; i++){
+		aLineList[i].set_ID(i+1); //asesembly line id starts at 1.
+		aLineList[i].set_workRate(rates[i]);
+	}
+	length_aLineList = num_assemblyLines; //not sure if i need this.
+	capacity_aLineList = num_assemblyLines; //not sure if i need this.
+}
+
 
 //----------------------------------------------------------------------------
 // run(int num_workers, double rates[]):
@@ -38,13 +40,12 @@ Factory::Factory(){
 // Output:          returns 0 if everything went well.
 //----------------------------------------------------------------------------
 
-int Factory::run(int num_workers, double rates[]){
-	//initialises an assembly line with specified workers and rates.
-	AssemblyLine l(num_workers, rates);
-	// gets Packages from cin stream and stores in PkgOrder array.
-	getPkgOrder();
+int Factory::run(){
 
-	l.process(PkgOrder,length_PkgOrder );
+	Dispatch
+
+// first, check it works for one assembly line
+	// aLineList[0].process(packageBufferQ, pkgCount);
 
 	return 0;
 }
@@ -57,63 +58,35 @@ int Factory::run(int num_workers, double rates[]){
 //----------------------------------------------------------------------------
 void Factory::getPkgOrder(){
 	string str;
-
+	Package tempPkg;
+	tempPkg = initPackage(tempPkg);
+	// must handle no packages !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	while( !cin.eof()){
  		 cin >> str;
  		 if (str == "number"){
- 		 	cin >> PkgOrder[length_PkgOrder].order_number;
+ 		 	cin >> tempPkg.order_number;
  		 }
  		 if (str == "with"){
- 		 	cin >> PkgOrder[length_PkgOrder].unit_number;
+ 		 	cin >> tempPkg.unit_number;
  		 }
 		if (str == "time"){
- 		 	cin >> PkgOrder[length_PkgOrder].time_Arrived;
-			PkgOrder[length_PkgOrder].isShipped = false; //for further use.
-			length_PkgOrder ++;
+ 		 	cin >> tempPkg.time_Arrived;
+			packageBufferQ.enqueue(tempPkg);
+			pkgCount++;
 			str = "null";
  		 }
-
- 		 if ( length_PkgOrder == capacity_PkgOrder) expandPkgOrder();
 	}
-}
-
-//----------------------------------------------------------------------------
-// expandPkgOrder(): Resizes the PkgOrder array in case it is needed.
-// Input:          	None
-// Output:         	None
-//----------------------------------------------------------------------------
-void Factory::expandPkgOrder(){
-	capacity_PkgOrder *= EXPAND_FACTOR;
-	Package * temp = new Package[capacity_PkgOrder];
-
-	for (int i = 0; i < length_PkgOrder; i++) {
-		temp[i].order_number  = PkgOrder[i].order_number ;
-		temp[i].unit_number  = PkgOrder[i].unit_number ;
-		temp[i].time_Arrived  = PkgOrder[i].time_Arrived ;
-		temp[i].time_Shipped  = PkgOrder[i].time_Shipped ;
-		temp[i].isShipped  = PkgOrder[i].isShipped ;
-		cerr << "Expanding" <<endl;
-	}
-
-	for (int e = length_PkgOrder; e < capacity_PkgOrder; e ++){
-			temp[e].order_number = '\0';  // Null terminator for de-bugging
-			temp[e].unit_number = '\0';
-			temp[e].time_Arrived = '\0';
-			temp[e].time_Shipped = '\0';
-			temp[e].isShipped = '\0';
-	}
-
-
-	delete[] PkgOrder;
-	PkgOrder = temp;
 
 }
 
-
-Factory::~Factory(){
-	delete[] PkgOrder;
+//initializes package variables to zero
+Package Factory::initPackage(Package p){
+		p.order_number= "NONE";
+		p.unit_number= 0;
+		p.units_worked = 0;
+		p.time_Arrived= 0;
+		p.time_Shipped= 0;
+		p.isCompleted= false;
+		p.assemblyLineID= 0;
+		return p;
 }
-
-
-
-//add something.
