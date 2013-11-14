@@ -14,8 +14,9 @@
 //----------------------------------------------------------------------------
 Factory::Factory(int num_assemblyLines, double rates[]){
 	 addAssemblyLines(num_assemblyLines, rates);
+
 	// get Pkgs from file and insert to the pacakgeBuffer.
-	 pkgCount = 0;
+	pkgCount = 0; // to keep count of inserted packages.
 	getPkgOrder();
 
 }
@@ -24,7 +25,7 @@ void Factory::addAssemblyLines(int num_assemblyLines, double rates[] ){
 	aLineList = new AssemblyLine[num_assemblyLines];
 
 	for(int i = 0; i<num_assemblyLines; i++){
-		aLineList[i].set_ID(i+1); //asesembly line id starts at 1.
+		aLineList[i].set_ID(i); //asesembly line id should at 1.
 		aLineList[i].set_workRate(rates[i]);
 	}
 	length_aLineList = num_assemblyLines; //not sure if i need this.
@@ -41,11 +42,11 @@ void Factory::addAssemblyLines(int num_assemblyLines, double rates[] ){
 //----------------------------------------------------------------------------
 
 int Factory::run(){
+	Dispatcher joe(aLineList, length_aLineList );
+	joe.dispatch(&packageBufferQ, pkgCount );
 
-	Dispatch
-
-// first, check it works for one assembly line
-	// aLineList[0].process(packageBufferQ, pkgCount);
+// // first, check it works for one assembly line
+// 	aLineList[0].process(&packageBufferQ, pkgCount);
 
 	return 0;
 }

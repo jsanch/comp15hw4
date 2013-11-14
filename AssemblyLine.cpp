@@ -12,17 +12,39 @@
 // Output:          None
 //----------------------------------------------------------------------------
 AssemblyLine::AssemblyLine(){
+	cerr <<"ASSEMBLYLINE construtor"<< endl;
 	double workRate = 0;
+	numPkgsProcessing = 0;
 	currentPkg = NULL;
+	arrivingPkgBuffer = NULL;
+	cerr <<"arrivingPkgBuffer: "<<  arrivingPkgBuffer << " in " << assemblyLineID<<endl;
 }
 
 void AssemblyLine::set_workRate(double r){
 	workRate = r;
+	cerr <<"arrivingPkgBuffer: "<<  arrivingPkgBuffer << " in " << assemblyLineID<<endl;
+
 }
 
 void AssemblyLine::set_ID(int id){
 	assemblyLineID = id;
+		cerr <<"arrivingPkgBuffer: "<<  arrivingPkgBuffer << " in " << assemblyLineID<<endl;
+
 }
+// void AssemblyLine::testARR(){
+// 	cerr << "testing..." <<endl;
+// 	cerr << arrivingPkgBuffer <<endl; //why is this segfaulting.
+// 	cerr << NULL;
+// }
+// void AssemblyLine::setArrivingQueue(PackageQueue * pkgBuffer){
+// 	cerr<< "///////////////ñññññ///////////////" <<endl;
+// 	cerr<<"BEFORE SETTING THE ARRIVING QUEUE, incoming pkgs are:" <<endl;
+// 	pkgBuffer->display();
+// 	cerr <<"1"<< arrivingPkgBuffer <<endl;
+// 	this->arrivingPkgBuffer = pkgBuffer;
+// 	cerr<< "ARRIVING QUEUE WAS SET IN AL" <<endl;
+// 	arrivingPkgBuffer->display();
+// }
 
 //----------------------------------------------------------------------------
 // process(PackageQueue  pkgBufferQ):	"The brains" of the Assembly
@@ -31,52 +53,56 @@ void AssemblyLine::set_ID(int id){
 // Input:   Aa queue, PkgOrder.
 // Output:  None
 //----------------------------------------------------------------------------
-void AssemblyLine::process(PackageQueue arrivingPkgBuffer, int pkgCount){
-	// arrivingPkgBuffer.display();
-	int timeUnit=0;
-	int arrivedPkgCount = pkgCount;
-	int	completedPkgCount = 0;
+// void AssemblyLine::process(PackageQueue * PkgBuffer, int pkgCount){
+// 	cerr <<"2"<<arrivingPkgBuffer <<endl;
+// 	this->arrivingPkgBuffer = PkgBuffer;
+// 	int timeUnit=0;
+// 	int arrivedPkgCount = pkgCount;
+// 	int	completedPkgCount = 0;
 
-	while( completedPkgCount != arrivedPkgCount  ){
+// 	while( completedPkgCount != arrivedPkgCount  ){
 
-		//STEP 1
-		if (!processingPkgBuffer.isEmpty()) {
-			if (!isCurrentPkgLoaded()){
-				loadCurrentPkg();
-				completedPkgCount =  do_work(completedPkgCount, timeUnit);
-			}else{
-				completedPkgCount =  do_work(completedPkgCount, timeUnit);
-			}
-		}
-		//STEP 2  ship if completed
-		if (isCurrentPkgLoaded()){
-			if(isPkgCompleted(currentPkg)){
-				shipPkg(timeUnit); // puts package in a cmpleted Pkg Buffer.
-			}
-		}
-		//STEP 3 add packages that arrive to Pkgqueue
-			if (!arrivingPkgBuffer.isEmpty()){
-				handlePkgArrival(&arrivingPkgBuffer,timeUnit);
-			}
+// 		//STEP 1
+// 		if (!processingPkgBuffer.isEmpty()) {
+// 			if (!isCurrentPkgLoaded()){
+// 				loadCurrentPkg();
+// 				completedPkgCount =  do_work(completedPkgCount, timeUnit);
+// 			}else{
+// 				completedPkgCount =  do_work(completedPkgCount, timeUnit);
+// 			}
+// 		}
+// 		//STEP 2  ship if completed
+// 		if (isCurrentPkgLoaded()){
+// 			if(isPkgCompleted(currentPkg)){
+// 				shipPkg(timeUnit); // puts package in a cmpleted Pkg Buffer.
+// 			}
+// 		}
+// 		//STEP 3 add packages that arrive to Pkgqueue
+// 			if (!arrivingPkgBuffer->isEmpty()){
+// 				handlePkgArrival(arrivingPkgBuffer,timeUnit);
+// 			}
 
-		// tick tock
-			timeUnit++;
-	}
-	// completedPkgBuffer.display();
+// 		// tick tock
+// 			timeUnit++;
+// 	}
+// 	// completedPkgBuffer.display();
 
-}
+// }
 
-int AssemblyLine::do_work(int completedPkgCount, int timeUnit){
+bool AssemblyLine::do_work(int timeUnit){
 		//adding workrate to amount worked.
 		currentPkg->units_worked += workRate;
 
 		//updating isCompleted value, in case it completes the package.
 		if (currentPkg->units_worked >= currentPkg->unit_number){
 			currentPkg->isCompleted = true;
-			completedPkgCount ++;
+			cerr << "Completed a pkg!"<<endl;
+			return true;
+
+		} else {
+			return false;
 
 		}
-	return completedPkgCount;
 }
 
 //precondition: arrivingPkgBuffer is NOT EMPTY
@@ -105,9 +131,8 @@ void AssemblyLine::shipPkg(int timeUnit){
 		completedPkgBuffer.enqueue(completedPkg);
 		processingPkgBuffer.dequeue();
 
+		numPkgsProcessing = numPkgsProcessing -1;
 		currentPkg = NULL;
-
-
 }
 
 void AssemblyLine::handlePkgArrival(PackageQueue * arrivingPkgBuffer, int timeUnit){
@@ -123,11 +148,8 @@ void AssemblyLine::handlePkgArrival(PackageQueue * arrivingPkgBuffer, int timeUn
 		 arrivingPkgBuffer->dequeue();
 		 // frontPkg = arrivingPkgBuffer->getFront();
 	}
-	// else, dont do anything.
 
 }
-
-
 
 // checks if there is a current Package Laoded
 bool AssemblyLine::isCurrentPkgLoaded(){
@@ -145,106 +167,7 @@ void AssemblyLine::print(){
 		<<" with "<<currentPkg->unit_number
 		<<" units arrived at time "<<currentPkg->time_Arrived
 		<<" and left at time "<<currentPkg->time_Shipped
-		<<" from "<< currentPkg->assemblyLineID
+		<<" from "<< currentPkg->assemblyLineID + 1
 		<< endl;
 
 }
-
-
-
-
-//precondition: there are always Pkg left in buffer.
-// bool AssemblyLine::loadCurrentPkg(){
-// 	// it is called when there are no current packages.
-// 	// it assigns the next package in the buffer to the queue
-// 			if ( processingPkgBuffer.isEmpty && currentPkg == NULL ){
-// 			// if the Pkg queue is not empty and there is no current Pkg,
-// 			// load current Package.
-// 		}
-// }
-
-	// Package * currentPkg = NULL; // used to mark if there is a pkg being worked
-	// bool endloop = false;  // used to break the loop.
-	// int i=0;  //the simulated time counter.
-
-	// while ( endloop != true) { // start loop. each loop represents a minute.
-	// //Case 1: Do work on current Pkg. If no current Pkg, get it from processingPkgBuffer.
-	// 	if ( ! processingPkgBuffer.isEmpty() )  {
-	// 		if(currentPkg == NULL){
-	// 				currentPkg =  processingPkgBuffer.getFront();
-	// 				currentPkg->units_worked  += worker.rate;
-	// 		} else {
-	// 			currentPkg->units_worked  += worker.rate;
-	// 		}
-	// 	}
-	// //Case 2: Check if currentPkg is proccessed. If so, Ship.
-	// 	if(currentPkg != NULL) {
-	// 		//case 1: is the current package ready for shipping? if so ship.
-	// 		if (currentPkg->units_worked >= currentPkg->unit_number){
-	// 			processingPkgBuffer.dequeue();
-	// 			currentPkg->time_Shipped = i;
-	// 			ship (currentPkg);
-	// 				// if last packagehas shipped, end it.
-	// 				if (currentPkg->order_number ==  PkgOrder[orderSize-1].order_number ) {
-	// 					endloop = true;
-	// 				}
-	// 			currentPkg = NULL; // signal that there is no current package to work on.
-	// 		}
-	// 	}
-	// 	// Use a  Timer
-	// //Case3: Check if Pkg has arrived. if so, put on the queue.
-	// 	for (int j=0; j < orderSize; j++){
-	// 		if ( PkgOrder[j].time_Arrived == i ) {
-	// 			processingPkgBuffer.enqueue( PkgOrder[j]);
-	// 			break;
-	// 		}
-	// 	}
-	// 	i++;
-	// }
-// }
-
-
-
-
-
-////LAST ALGO.
-// void AssemblyLine::process(PackageQueue pkgBufferQ , int orderSize){
-// 	Package * currentPkg = NULL; // used to mark if there is a pkg being worked
-// 	bool endloop = false;  // used to break the loop.
-// 	int i=0;  //the simulated time counter.
-
-// 	while ( endloop != true) { // start loop. each loop represents a minute.
-// 	//Case 1: Do work on current Pkg. If no current Pkg, get it from processingPkgBuffer.
-// 		if ( ! processingPkgBuffer.isEmpty() )  {
-// 			if(currentPkg == NULL){
-// 					currentPkg =  processingPkgBuffer.getFront();
-// 					currentPkg->units_worked  += worker.rate;
-// 			} else {
-// 				currentPkg->units_worked  += worker.rate;
-// 			}
-// 		}
-// 	//Case 2: Check if currentPkg is proccessed. If so, Ship.
-// 		if(currentPkg != NULL) {
-// 			//case 1: is the current package ready for shipping? if so ship.
-// 			if (currentPkg->units_worked >= currentPkg->unit_number){
-// 				processingPkgBuffer.dequeue();
-// 				currentPkg->time_Shipped = i;
-// 				ship (currentPkg);
-// 					// if last packagehas shipped, end it.
-// 					if (currentPkg->order_number ==  PkgOrder[orderSize-1].order_number ) {
-// 						endloop = true;
-// 					}
-// 				currentPkg = NULL; // signal that there is no current package to work on.
-// 			}
-// 		}
-// 		// Use a  Timer
-// 	//Case3: Check if Pkg has arrived. if so, put on the queue.
-// 		for (int j=0; j < orderSize; j++){
-// 			if ( PkgOrder[j].time_Arrived == i ) {
-// 				processingPkgBuffer.enqueue( PkgOrder[j]);
-// 				break;
-// 			}
-// 		}
-// 		i++;
-// 	}
-// }
