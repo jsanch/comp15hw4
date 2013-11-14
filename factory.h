@@ -1,25 +1,32 @@
 //----------------------------------------------------------------------------
 // Filename:    factory.h
 // Date:        22 October 2013
-// Description: interface for Factory class. Handles input of Pkgs and runs 
-//				Assembly Lines. 
+// Description: interface for Factory class. Handles input of Pkgs and runs
+//				Assembly Lines.
 //----------------------------------------------------------------------------
 
-#include "AssemblyLine.h"
+#include "Dispatcher.h"
 
-const int INIT_SIZE_PKG_BUFF = 5; 
-const int EXPAND_FACTOR = 2; 
 
-class Factory { 
+const int INIT_SIZE= 5;
+const int EXPAND_FACTOR = 2;
+
+class Factory {
 	public:
-		Factory();
-		~Factory();
-		int run(int num_workers, double rates[]);  
-		void getPkgOrder(); 
+		Factory(int num_assemblyLines, double rates[] );
+		void addAssemblyLines(int num_assemblyLines, double rates[]);
+		// ~Factory();
+		int run();
+		void getPkgOrder();
 
-	private:		
-		Package *PkgOrder; //dynamic array of packages to store PkgOrder.
-		void expandPkgOrder(); 
-		int length_PkgOrder;
-		int capacity_PkgOrder; 
+	private:
+		Package initPackage(Package p);
+		PackageQueue packageBufferQ;
+			int pkgCount;
+
+		AssemblyLine *aLineList; //dynamic array of AssemblyLines
+		int length_aLineList;
+		int capacity_aLineList;
+
+
 };
