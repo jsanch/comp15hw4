@@ -44,10 +44,6 @@ void Factory::addAssemblyLines(int num_assemblyLines, double rates[] ){
 int Factory::run(){
 	Dispatcher joe(aLineList, length_aLineList );
 	joe.dispatch(&packageBufferQ, pkgCount );
-
-// // first, check it works for one assembly line
-// 	aLineList[0].process(&packageBufferQ, pkgCount);
-
 	return 0;
 }
 
