@@ -46,6 +46,13 @@ class AssemblyLine {
 
 		//variables to be used by the process
 		Package * currentPkg; // usually is the first of proccessingPkgBuffer.
+
+		 int numUnitsProcessing;
+		// package.unit_number - package.units_worked = units left.
+
+		int getNumUnitsLeft();
+		double getPkgETA();
+
 		private:
 
 	};

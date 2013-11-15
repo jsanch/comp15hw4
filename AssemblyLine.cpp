@@ -18,6 +18,8 @@ AssemblyLine::AssemblyLine(){
 	currentPkg = NULL;
 	arrivingPkgBuffer = NULL;
 	cerr <<"arrivingPkgBuffer: "<<  arrivingPkgBuffer << " in " << assemblyLineID<<endl;
+
+	int numUnitsProcessing = 0;
 }
 
 void AssemblyLine::set_workRate(double r){
@@ -92,7 +94,10 @@ void AssemblyLine::set_ID(int id){
 bool AssemblyLine::do_work(int timeUnit){
 		//adding workrate to amount worked.
 		currentPkg->units_worked += workRate;
-
+		//in case there is more worked units than the number of units.
+		if (currentPkg->units_worked > currentPkg->unit_number){
+			currentPkg->units_worked = currentPkg->unit_number;
+		}
 		//updating isCompleted value, in case it completes the package.
 		if (currentPkg->units_worked >= currentPkg->unit_number){
 			currentPkg->isCompleted = true;
@@ -130,7 +135,6 @@ void AssemblyLine::shipPkg(int timeUnit){
 		Package completedPkg = *currentPkg;
 		completedPkgBuffer.enqueue(completedPkg);
 		processingPkgBuffer.dequeue();
-
 		numPkgsProcessing = numPkgsProcessing -1;
 		currentPkg = NULL;
 }
@@ -154,6 +158,20 @@ void AssemblyLine::handlePkgArrival(PackageQueue * arrivingPkgBuffer, int timeUn
 // checks if there is a current Package Laoded
 bool AssemblyLine::isCurrentPkgLoaded(){
 	return !(currentPkg == NULL);
+}
+
+int AssemblyLine::getNumUnitsLeft(){
+cerr << "calcultating number of units left in Assembly line " << assemblyLineID;
+	int currentUnits = 0;
+	if ( isCurrentPkgLoaded())
+		int currentUnits = ( currentPkg->unit_number - currentPkg->units_worked);
+
+	return numUnitsProcessing + currentUnits;
+}
+
+double AssemblyLine::getPkgETA(){
+	int units_left = getNumUnitsLeft();
+	return units_left/workRate;
 }
 
 

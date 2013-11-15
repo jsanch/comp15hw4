@@ -69,7 +69,9 @@ cerr << "//(2)Starting Shipping in AssemblyLine: " << id <<"  TIME: "<< timeUnit
     if (aL->isCurrentPkgLoaded()){
       if(aL->isPkgCompleted(aL->currentPkg)){
         cerr <<"//////////////////////////////////////////////////////";
+         aL->numUnitsProcessing -=  aL->currentPkg->unit_number; //part2
         aL->shipPkg(timeUnit); // puts package in a cmpleted Pkg Buffer.
+
       } else {
 // cerr << "Package not Completed, Cant Ship" <<endl;
       }
@@ -96,7 +98,7 @@ cerr << "///(3) Starting Distribution" << endl;
   if (frontPkg ->time_Arrived == timeUnit) {
     // put in the assembly line that is wished.
     Package newPkg = *frontPkg;
-    dispatch_to_assembly1(newPkg); /// this is like the enqueue.
+    dispatch_to_assembly2(newPkg); /// this is like the enqueue.
     //remove the package from the front.
     this->arrivingPkgBuffer->dequeue();
 
@@ -129,10 +131,9 @@ void Dispatcher::dispatch_to_assembly1(Package newPkg){
   cerr << "PACKAGE SENT TO" <<minLine->assemblyLineID<<endl;
 
 }
-
+/////////////MONEY NONOWWWWWW
 void Dispatcher::dispatch_to_assembly2(Package newPkg){
- // go dirctly to processing queueue , bypassig arrival queue inside assembly.
-
+ // go dirctly to processing queueue , bypassig arrival queue inside assembly
   //setting default mins.
   // int min = aLineList[0].numPkgsProcessing;
   AssemblyLine *minLine;
@@ -140,12 +141,14 @@ void Dispatcher::dispatch_to_assembly2(Package newPkg){
 
   for (int i = 0; i<length_aLineList; i++){
     //find lowest
-    if ( aLineList[i].numPkgsProcessing < minLine->numPkgsProcessing) {
+    if ( aLineList[i].getNumUnitsLeft() < minLine->getNumUnitsLeft()) {
+      cerr << " iffffffffffff " << endl;
       minLine = &aLineList[i];
     }
   }
   minLine->processingPkgBuffer.enqueue(newPkg);
-  minLine->numPkgsProcessing++;
+  minLine->numUnitsProcessing += newPkg.unit_number;
+
   cerr << "PACKAGE SENT TO" <<minLine->assemblyLineID<<endl;
 
 }
@@ -160,12 +163,12 @@ void Dispatcher::dispatch_to_assembly3(Package newPkg){
 
   for (int i = 0; i<length_aLineList; i++){
     //find lowest
-    if ( aLineList[i].numPkgsProcessing < minLine->numPkgsProcessing) {
+    if ( aLineList[i].getPkgETA() < minLine->getPkgETA()) {
       minLine = &aLineList[i];
     }
   }
   minLine->processingPkgBuffer.enqueue(newPkg);
-  minLine->numPkgsProcessing++;
+  minLine->numUnitsProcessing += newPkg.unit_number;
   cerr << "PACKAGE SENT TO" <<minLine->assemblyLineID<<endl;
 
 }

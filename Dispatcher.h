@@ -24,7 +24,9 @@ class Dispatcher {
     AssemblyLine *aLineList;
     int length_aLineList;
     int timeUnit;
+
     // int completedPkgCount;
+    // int numUnitsProcessing;
 
 };
 
