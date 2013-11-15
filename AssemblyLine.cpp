@@ -1,97 +1,27 @@
 //----------------------------------------------------------------------------
 // Filename:    AssemblyLine.cpp
-// Date:        22 October 2013
+// Date:        12 November 2013
 // Description:  Implementation of the assembly line.
 //----------------------------------------------------------------------------
 
 #include "AssemblyLine.h"
 
 //----------------------------------------------------------------------------
-// AssemblyLine():  Initializes an assembly line with workers.
-// Input:          	An Integer, workers. And a double (array), ratesList.
+// AssemblyLine():  Initializes an assembly line.
+// Input:          	None
 // Output:          None
 //----------------------------------------------------------------------------
 AssemblyLine::AssemblyLine(){
-	cerr <<"ASSEMBLYLINE construtor"<< endl;
-	double workRate = 0;
 	numPkgsProcessing = 0;
 	currentPkg = NULL;
-	arrivingPkgBuffer = NULL;
-	cerr <<"arrivingPkgBuffer: "<<  arrivingPkgBuffer << " in " << assemblyLineID<<endl;
-
-	int numUnitsProcessing = 0;
 }
-
-void AssemblyLine::set_workRate(double r){
-	workRate = r;
-	cerr <<"arrivingPkgBuffer: "<<  arrivingPkgBuffer << " in " << assemblyLineID<<endl;
-
-}
-
-void AssemblyLine::set_ID(int id){
-	assemblyLineID = id;
-		cerr <<"arrivingPkgBuffer: "<<  arrivingPkgBuffer << " in " << assemblyLineID<<endl;
-
-}
-// void AssemblyLine::testARR(){
-// 	cerr << "testing..." <<endl;
-// 	cerr << arrivingPkgBuffer <<endl; //why is this segfaulting.
-// 	cerr << NULL;
-// }
-// void AssemblyLine::setArrivingQueue(PackageQueue * pkgBuffer){
-// 	cerr<< "///////////////ñññññ///////////////" <<endl;
-// 	cerr<<"BEFORE SETTING THE ARRIVING QUEUE, incoming pkgs are:" <<endl;
-// 	pkgBuffer->display();
-// 	cerr <<"1"<< arrivingPkgBuffer <<endl;
-// 	this->arrivingPkgBuffer = pkgBuffer;
-// 	cerr<< "ARRIVING QUEUE WAS SET IN AL" <<endl;
-// 	arrivingPkgBuffer->display();
-// }
 
 //----------------------------------------------------------------------------
-// process(PackageQueue  pkgBufferQ):	"The brains" of the Assembly
-//			Line. Takes in an order of packages, works on them on simulated
-//			real time and finally ships them.
-// Input:   Aa queue, PkgOrder.
-// Output:  None
+// do_work(): Does work on the current package. returns true if pkg completed.
+// Input:          	None
+// Output:          true or false
 //----------------------------------------------------------------------------
-// void AssemblyLine::process(PackageQueue * PkgBuffer, int pkgCount){
-// 	cerr <<"2"<<arrivingPkgBuffer <<endl;
-// 	this->arrivingPkgBuffer = PkgBuffer;
-// 	int timeUnit=0;
-// 	int arrivedPkgCount = pkgCount;
-// 	int	completedPkgCount = 0;
-
-// 	while( completedPkgCount != arrivedPkgCount  ){
-
-// 		//STEP 1
-// 		if (!processingPkgBuffer.isEmpty()) {
-// 			if (!isCurrentPkgLoaded()){
-// 				loadCurrentPkg();
-// 				completedPkgCount =  do_work(completedPkgCount, timeUnit);
-// 			}else{
-// 				completedPkgCount =  do_work(completedPkgCount, timeUnit);
-// 			}
-// 		}
-// 		//STEP 2  ship if completed
-// 		if (isCurrentPkgLoaded()){
-// 			if(isPkgCompleted(currentPkg)){
-// 				shipPkg(timeUnit); // puts package in a cmpleted Pkg Buffer.
-// 			}
-// 		}
-// 		//STEP 3 add packages that arrive to Pkgqueue
-// 			if (!arrivingPkgBuffer->isEmpty()){
-// 				handlePkgArrival(arrivingPkgBuffer,timeUnit);
-// 			}
-
-// 		// tick tock
-// 			timeUnit++;
-// 	}
-// 	// completedPkgBuffer.display();
-
-// }
-
-bool AssemblyLine::do_work(int timeUnit){
+bool AssemblyLine::do_work(){
 		//adding workrate to amount worked.
 		currentPkg->units_worked += workRate;
 		//in case there is more worked units than the number of units.
@@ -101,7 +31,7 @@ bool AssemblyLine::do_work(int timeUnit){
 		//updating isCompleted value, in case it completes the package.
 		if (currentPkg->units_worked >= currentPkg->unit_number){
 			currentPkg->isCompleted = true;
-			cerr << "Completed a pkg!"<<endl;
+			// cerr << "Completed a pkg!"<<endl;
 			return true;
 
 		} else {
@@ -109,29 +39,17 @@ bool AssemblyLine::do_work(int timeUnit){
 
 		}
 }
-
-//precondition: arrivingPkgBuffer is NOT EMPTY
-void AssemblyLine::loadCurrentPkg(){
-		currentPkg = processingPkgBuffer.getFront(); //loading.
-}
-
-bool AssemblyLine::isPkgCompleted(Package *p){
-		if (p == NULL)
-			return false;
-		else
-			return p->isCompleted;
-}
-void AssemblyLine::setCompletedPkgCount(int n){
-		completedPkgCount = n;
-}
-
-//precondition: current package is completed.
-//precondition: CurrentPackage is loaded.
+//----------------------------------------------------------------------------
+// shipPkg(): Ships the current package.
+// Input:          	None
+// Output:          true or false
+//	precondition: current package is completed.
+//	precondition: current Package is loaded.
+//----------------------------------------------------------------------------
 void AssemblyLine::shipPkg(int timeUnit){
 		currentPkg->time_Shipped = timeUnit;
 		currentPkg->assemblyLineID= assemblyLineID;
 		print();
-		//add completed package to completed Pkg buffer
 		Package completedPkg = *currentPkg;
 		completedPkgBuffer.enqueue(completedPkg);
 		processingPkgBuffer.dequeue();
@@ -139,40 +57,50 @@ void AssemblyLine::shipPkg(int timeUnit){
 		currentPkg = NULL;
 }
 
-void AssemblyLine::handlePkgArrival(PackageQueue * arrivingPkgBuffer, int timeUnit){
-
-	// getting the front of the arriving PkgBuffer.
-	Package * frontPkg = arrivingPkgBuffer->getFront();
-	// check if the frontPkg has arrived for the current timeUnit.
-	if ( frontPkg->time_Arrived == timeUnit) { //solo se mete una vez.
-		//add package to processsing queue
-		Package  newPkg = *frontPkg; //creating new, because other was a pointer.
-		processingPkgBuffer.enqueue (newPkg);
-		//remove arrived pacakge from arriving PkgBufferr
-		 arrivingPkgBuffer->dequeue();
-		 // frontPkg = arrivingPkgBuffer->getFront();
-	}
-
+/* helper functions */
+//----------------------------------------------------------------------------
+// loadCurrentPkg(): Gets a pointer to  the front of the processing queue
+// Input:          	None
+// Output:          true or false
+// precondition: arrivingPkgBuffer is NOT EMPTY
+//----------------------------------------------------------------------------
+void AssemblyLine::loadCurrentPkg(){
+		currentPkg = processingPkgBuffer.getFront(); //loading.
 }
 
-// checks if there is a current Package Laoded
+
+//----------------------------------------------------------------------------
+// isPkgCompleted(Package *p): Checks if a Package is completed
+// Input:  pointer to a package
+// Output: true,  false
+//----------------------------------------------------------------------------
+bool AssemblyLine::isPkgCompleted(Package *p){
+		if (p == NULL)
+			return false;
+		else
+			return p->isCompleted;
+}
+
+//----------------------------------------------------------------------------
+// setCompletedPkgCount(int n): sets the coount of completed Packages
+// Input:      int, n
+// Output:     none
+//----------------------------------------------------------------------------
+void AssemblyLine::setCompletedPkgCount(int n){
+		completedPkgCount = n;
+}
+
+
+// ----------------------------------------------------------------------------
+// isCurrentPkgLoaded(): Checks if there is a Package currently loaded.
+// Input:
+// Output: 	true, false
+// ----------------------------------------------------------------------------
 bool AssemblyLine::isCurrentPkgLoaded(){
 	return !(currentPkg == NULL);
 }
 
-int AssemblyLine::getNumUnitsLeft(){
-cerr << "calcultating number of units left in Assembly line " << assemblyLineID;
-	int currentUnits = 0;
-	if ( isCurrentPkgLoaded())
-		int currentUnits = ( currentPkg->unit_number - currentPkg->units_worked);
 
-	return numUnitsProcessing + currentUnits;
-}
-
-double AssemblyLine::getPkgETA(){
-	int units_left = getNumUnitsLeft();
-	return units_left/workRate;
-}
 
 
 // ----------------------------------------------------------------------------
@@ -188,4 +116,47 @@ void AssemblyLine::print(){
 		<<" from "<< currentPkg->assemblyLineID + 1
 		<< endl;
 
+}
+
+
+//----------------------------------------------------------------------------
+// set_workRate(double r): sets the rate of work of the assembly line.
+// Input:          	double, rate
+// Output:          None
+//----------------------------------------------------------------------------
+void AssemblyLine::set_workRate(double r){
+	workRate = r;
+}
+
+//----------------------------------------------------------------------------
+// set_ID(int id): sets the ID of the Assembly Line
+// Input:          	int, id
+// Output:          None
+//----------------------------------------------------------------------------
+void AssemblyLine::set_ID(int id){
+	assemblyLineID = id;
+}
+
+
+//----------------------------------------------------------------------------
+// getNumUnitsLeft(int id): Gets the number of Units left in the Assembly line
+// Input:          	None
+// Output:          int, numUnitsProcessing + currentUnits
+//----------------------------------------------------------------------------
+int AssemblyLine::getNumUnitsLeft(){
+	int currentUnits = 0;
+	if ( isCurrentPkgLoaded())
+		 currentUnits = ( currentPkg->unit_number - currentPkg->units_worked);
+	return numUnitsProcessing + currentUnits;
+}
+
+
+//----------------------------------------------------------------------------
+// getPkgETA(): gets the ETA for the packages.
+// Input:          	None
+// Output:          int, numUnitsProcessing + currentUnits
+//----------------------------------------------------------------------------
+double AssemblyLine::getPkgETA(){
+	int units_left = getNumUnitsLeft();
+	return units_left/workRate;
 }

@@ -55,6 +55,16 @@ AssemblyLine -> Processes packages and outputs to console the shipping time.
 		int number_of_Units
 		double estimatedTime
 
+ Dispatcher -> controls what packages go to the AssemblyLine
+  	Important Functions:
+	    Dispatcher(AssemblyLine *list, int size);
+	    void dispatch(PackageQueue *PkgBuffer, int PkgCount);
+	    int al_do_work(int id);
+	    void al_ship(int id, int timeUnit);
+	    void distributeArrivingPkgs(int timeUnit);
+	    void init_aLs(PackageQueue * arrivingPkgBuffer);
+	    void dispatch_to_assembly(Package newPkg
+
 PackageQueue ->  A queue implementation using linked lists.
 	Important Functions:
 		bool isEmpty();
@@ -68,41 +78,23 @@ PackageQueue ->  A queue implementation using linked lists.
 
 facmain
 	Factory
-		AssemblyLine
-			Worker
-			PackageQueue
-				Package
-				node
+		Dispatcher			//there is an important collaboration between
+		AssemblyLine    // the Dispatcher and the AssemblyLine class
+				Worker      // for ultimate efficiency, the Dispatcher has total control
+				PackageQueue
+					Package
+					node
 
 //////////////////////////// Compile Instructions /////////////////////////////
 
-g++ ......
+simply run the script contained in the compile file, also copied below
+
+g++ -Wall -Wextra facmain.cpp factory.cpp AssemblyLine.cpp PackageQueue.cpp DispatcherPackage.cpp -o simp
+g++ -Wall -Wextra facmain.cpp factory.cpp AssemblyLine.cpp PackageQueue.cpp DispatcherUnit.cpp -o simu
+g++ -Wall -Wextra facmain.cpp factory.cpp AssemblyLine.cpp PackageQueue.cpp DispatcherTime.cpp -o simt
 
 
 
-///////////////////////////////////////////////////////////old stuff
-/// Program Interface
-
-	Program will take in the following data:
-		a) Number of Wrokers (num_workers) and their rates (ratesList) as the
-		argument.
-		b) List of packages  (list_of_packages) on a separate file. This data
-		will be accessed with cin. It will be given in the following format :
-			Package order number S123 with 9 units arrived at time 0
-
-///	Use.
-	This program was adapted to use with the facmain.cpp  file. In the case that
-	you want to test in with another file, please read the following:
-		The frontier class of my program is the Factory class. To process a list of
-		packages you must make your own main, and in it  use the run() and pass the
-		number of workers and their respective rates. Also, you must run the
-		program along with a file contating pacakge orders
 
 
 
-//NOTES:
-ADD Ccompilation instructions
-
-// no talking about cin, or any function levels
-
-/// Notes, dont go over the lines

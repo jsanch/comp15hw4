@@ -1,125 +1,100 @@
+//----------------------------------------------------------------------------
+// Filename:    DispatcherPackage.cpp
+// Date:        12 November 2013
+// Description: implementation for Dispatcher class.
+//----------------------------------------------------------------------------
+
+
 #include "Dispatcher.h"
 
+//----------------------------------------------------------------------------
+// Dispatcher():  Initializes the Dispatcher.
+// Input:         array of Assembly lines, an their size.
+// Output:          None
+//----------------------------------------------------------------------------
 Dispatcher::Dispatcher(AssemblyLine *list, int size){
-  //copy pointer to assembly lines. and the size.
   this->aLineList = list;
-  cerr << "the first aline is" << aLineList[0].assemblyLineID <<endl;
-  cerr <<"the total size is " << size << endl;
   this->length_aLineList = size;
-
 }
-// MAKE SURE QUEUES IN ASSEMBLY LINE ARE NOT POINTING TO NULL.
+//----------------------------------------------------------------------------
+// dispatch(): processes a the list of incoming Packages.
+// Input:       A queue of packages and a count of packages.
+// Output:      None
+//----------------------------------------------------------------------------
 void Dispatcher::dispatch(PackageQueue * PkgBuffer, int pkgCount){
-//initial stuff
- this->arrivingPkgBuffer = PkgBuffer; // critical: must pass pointer to class.                                     // now the whole class has it.
- initAssemblies();
- // aLineList[0].arrivingPkgBuffer = this->arrivingPkgBuffer; //wow. CRITICAL.
+ this->arrivingPkgBuffer = PkgBuffer;
 
-  //Step one. all assembly lines do work.
-
-  //Step two. check if any of the assembly lines has done a job. if so, ship.
-
-
-  //Step three. PACKAGE ARRIVES. Dispatch to best assembly line.
-//test
   timeUnit = 0;
   int completedPkgCount=0;
   while(completedPkgCount != pkgCount){
-    cerr <<"///////////////////////////////////////////////////////////////////Starting Dispatching, TIME: " << timeUnit << endl;
-    // init_aLs(&arrivingPkgBuffer);
     for (int i = 0; i < length_aLineList; i++){
-        cerr << "do work in assemblyLine :" << i <<endl;
-      completedPkgCount += al_do_work(i, timeUnit);
-
-      al_ship(i, timeUnit);
+      completedPkgCount += al_do_work(i); //step one
+      al_ship(i, timeUnit);               //step two
     }
     if (!arrivingPkgBuffer->isEmpty()){
-     distributeArrivingPkgs(timeUnit);
+      distributeArrivingPkgs(timeUnit);   //step three (critical)
     }
-     cerr << ".............completedPkgCount = " << completedPkgCount <<endl;
      timeUnit++;
-
   }
 }
-// void Dispatcher::init_aLs(PackageQueue * arrivingPkgBuffer){
-// //must provide an arriving queue to each assembly line.
-//   //test- for now just, to the first.
-//   aLineList[0]->setArrivingQueue(arrivingPkgBuffer);
 
-
-// }
-
-int Dispatcher::al_do_work(int id, int timeUnit){
-cerr << "/(1)Starting work in AssemblyLine: " << id <<"  TIME: "<< timeUnit << endl;
+//----------------------------------------------------------------------------
+// al_do_work(int id): works on a specified assmebly line
+// Input:      an id. (the assembly line's id. )
+// Output:      int, returns 1 if a package was completed, 0 if not.
+//----------------------------------------------------------------------------
+int Dispatcher::al_do_work(int id){
   int completedPkgCount = 0;
  AssemblyLine * aL = &aLineList[id]; // easier to work with.
     if (!( aL -> processingPkgBuffer.isEmpty()) ) {
       if (! aL->isCurrentPkgLoaded()){
         aL->loadCurrentPkg();
-        completedPkgCount = aL->do_work(timeUnit);
+        completedPkgCount = aL->do_work();
       }else{
-        completedPkgCount = aL->do_work(timeUnit);
+        completedPkgCount = aL->do_work();
       }
     }
     return completedPkgCount;
 }
+//----------------------------------------------------------------------------
+// al_ship(int id, int timeUnit): ships in a specified assemby line.
+// Input:      an id (int) , the time (int)
+// Output:     None
+//----------------------------------------------------------------------------
 void Dispatcher::al_ship(int id, int timeUnit){
-cerr << "//(2)Starting Shipping in AssemblyLine: " << id <<"  TIME: "<< timeUnit << endl;
   AssemblyLine * aL = &aLineList[id];
     if (aL->isCurrentPkgLoaded()){
       if(aL->isPkgCompleted(aL->currentPkg)){
-        cerr <<"//////////////////////////////////////////////////////";
-         aL->numUnitsProcessing -=  aL->currentPkg->unit_number; //part2
+         aL->numUnitsProcessing -=  aL->currentPkg->unit_number;
         aL->shipPkg(timeUnit); // puts package in a cmpleted Pkg Buffer.
-
-      } else {
-// cerr << "Package not Completed, Cant Ship" <<endl;
       }
-    }else {
-// cerr << "Package Not loaded, Cant Ship" <<endl;
     }
 }
 
-void Dispatcher::initAssemblies(){
-// Creating an empty arriving buffer for each Assembly.
-  for (int i = 0; i<length_aLineList; i++) {
-  // create an arriving buffer for every assembly line.
-  // aLineList[i].arrivingPkgBuffer = this->arrivingPkgBuffer; //wow. CRITICAL.
-  aLineList[i].arrivingPkgBuffer = new PackageQueue;
-  }
-}
-
+//----------------------------------------------------------------------------
+// distributeArrivingPkgs(int timeUnit): distribute Arriving Packages into a
+//                                       an assembly line.
+// Input:     the time (int)
+// Output:    None
+//----------------------------------------------------------------------------
 void Dispatcher::distributeArrivingPkgs(int timeUnit){
-cerr << "///(3) Starting Distribution" << endl;
-
-  //get the front.
   Package *frontPkg = this->arrivingPkgBuffer->getFront();
-  //check if it 'has arrived in this current timeUnit'
   if (frontPkg ->time_Arrived == timeUnit) {
-    // put in the assembly line that is wished.
     Package newPkg = *frontPkg;
-    dispatch_to_assembly2(newPkg); /// this is like the enqueue.
-    //remove the package from the front.
+    dispatch_to_assembly(newPkg); /// this is like the enqueue.
     this->arrivingPkgBuffer->dequeue();
-
   }
-// //testing.
-// AssemblyLine * aL = &aLineList[0];
-//   if (!(aL->arrivingPkgBuffer->isEmpty() ) ) {
-//     aL->handlePkgArrival(arrivingPkgBuffer, timeUnit);
-//   }
-
 }
 
-//the money maker.
-void Dispatcher::dispatch_to_assembly1(Package newPkg){
- // go dirctly to processing queueue , bypassig arrival queue inside assembly.
-
-  //setting default mins.
-  // int min = aLineList[0].numPkgsProcessing;
-  AssemblyLine *minLine;
+//----------------------------------------------------------------------------
+// dispatch_to_assembly(Pkg): Algortithm that decides which assembly to
+//                            dispatch the incoming Pkg.
+// Input:     Package newPkg.
+// Output:    None
+//----------------------------------------------------------------------------
+void Dispatcher::dispatch_to_assembly(Package newPkg){
+    AssemblyLine *minLine;
     minLine = &aLineList[0];
-
   for (int i = 0; i<length_aLineList; i++){
     //find lowest
     if ( aLineList[i].numPkgsProcessing < minLine->numPkgsProcessing) {
@@ -128,47 +103,5 @@ void Dispatcher::dispatch_to_assembly1(Package newPkg){
   }
   minLine->processingPkgBuffer.enqueue(newPkg);
   minLine->numPkgsProcessing++;
-  cerr << "PACKAGE SENT TO" <<minLine->assemblyLineID<<endl;
-
-}
-/////////////MONEY NONOWWWWWW
-void Dispatcher::dispatch_to_assembly2(Package newPkg){
- // go dirctly to processing queueue , bypassig arrival queue inside assembly
-  //setting default mins.
-  // int min = aLineList[0].numPkgsProcessing;
-  AssemblyLine *minLine;
-    minLine = &aLineList[0];
-
-  for (int i = 0; i<length_aLineList; i++){
-    //find lowest
-    if ( aLineList[i].getNumUnitsLeft() < minLine->getNumUnitsLeft()) {
-      cerr << " iffffffffffff " << endl;
-      minLine = &aLineList[i];
-    }
-  }
-  minLine->processingPkgBuffer.enqueue(newPkg);
-  minLine->numUnitsProcessing += newPkg.unit_number;
-
-  cerr << "PACKAGE SENT TO" <<minLine->assemblyLineID<<endl;
-
-}
-
-void Dispatcher::dispatch_to_assembly3(Package newPkg){
- // go dirctly to processing queueue , bypassig arrival queue inside assembly.
-
-  //setting default mins.
-  // int min = aLineList[0].numPkgsProcessing;
-  AssemblyLine *minLine;
-    minLine = &aLineList[0];
-
-  for (int i = 0; i<length_aLineList; i++){
-    //find lowest
-    if ( aLineList[i].getPkgETA() < minLine->getPkgETA()) {
-      minLine = &aLineList[i];
-    }
-  }
-  minLine->processingPkgBuffer.enqueue(newPkg);
-  minLine->numUnitsProcessing += newPkg.unit_number;
-  cerr << "PACKAGE SENT TO" <<minLine->assemblyLineID<<endl;
 
 }

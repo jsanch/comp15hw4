@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
 // Filename:    PackageQueue.h
-// Date:        22 October 2013
+// Date:        12 November 2013
 // Description: A queue interface for a linked list implementation.
 //----------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ struct Package{
   int time_Arrived;
   int time_Shipped;
   bool isCompleted;
-  int assemblyLineID; // indicates which assembly line worked on it.
+  int assemblyLineID;
 };
 
 struct node{
@@ -29,7 +29,6 @@ class PackageQueue{
     void enqueue(Package pkg);
     void dequeue();
     void display();
-    //gives a pointer to a copy of the first.
     Package * getFront();
 
   private:

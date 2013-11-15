@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
 // Filename:    factory.cpp
-// Date:        22 October 2013
+// Date:        12 November 2013
 // Description: implementation for Factory class. Handles input of Pkgs
 //							and runs Assembly Lines.
 //----------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
 // Filename:    PackageQueue.cpp
-// Date:        22 October 2013
+// Date:        12 November 2013
 // Description:  A  queue implementation using linked lists.
 //----------------------------------------------------------------------------
 
@@ -107,51 +107,7 @@ Package * PackageQueue::getFront(){
   if(front == NULL) {
     cerr<<"Nothing to return"<<endl;
   }
-
   Package *p = new Package;
     *p = f->package;
     return p;
 }
-
-// testing purposes
-// int main(){
-//     PackageQueue queue;
-//     Package one;
-//     Package two;
-//     Package three;
-//     one.order_number = "one";
-//     one.unit_number = 1 ;
-//     two.order_number = "two";
-//     two.unit_number = 2 ;
-//     three.order_number = "three";
-//     three.unit_number = 2 ;
-
-//      queue.enqueue(one);
-//      queue.enqueue(two);
-//      queue.enqueue(three);
-//      queue.display();
-//          cerr << "is it empty ?" << queue.isEmpty() <<endl;
-
-//      queue.dequeue();
-//      queue.dequeue();
-//      queue.display();
-
-//      queue.enqueue(two);
-//      queue.display();
-
-//      queue.dequeue();
-//      queue.dequeue();
-//      queue.dequeue();
-//      queue.display();
-//      cerr << "is it empty ?" << queue.isEmpty() <<endl;
-
-
-//      queue.enqueue(one);
-//      Package * first = queue.getFront();
-//      cerr << first->unit_number<<endl;
-
-
-
-//     return 0;
-// }
-

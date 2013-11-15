@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------------
 // Filename:    AssemblyLine.h
-// Date:        22 October 2013
+// Date:        12 November 2013
 // Description: interface for the Assembly Line class
 //----------------------------------------------------------------------------
 #include "PackageQueue.h"
@@ -15,45 +15,33 @@ class AssemblyLine {
 
 	public:
 		AssemblyLine();
-		void process(PackageQueue * PkgBuffer, int pkgCount);
+
+		bool do_work();
 		void shipPkg(int timeUnit);
+		int getNumUnitsLeft();
+		double getPkgETA();
+		void print();
 		void set_workRate(double r);
 		void set_ID(int id);
-		void print();
-
 		void loadCurrentPkg();
 		bool isPkgCompleted(Package *p);
-		void handlePkgArrival(PackageQueue * arrivingPkgBuffer,int timeUnit);
-		bool do_work(int timeUnit);
-		// bool loadCurrentPkg();
 		bool isCurrentPkgLoaded();
 		void setCompletedPkgCount(int n);
-
-		int timeUnit;
+		void setArrivingQueue(PackageQueue *PkgBuffer);
 
 		int assemblyLineID;
 		double workRate;
-		PackageQueue processingPkgBuffer; // queue for handling the packages.
-		int numPkgsProcessing;
-		void setArrivingQueue(PackageQueue *PkgBuffer);
-		void testARR();
-		//arrivingPkgBuffer
-		PackageQueue * arrivingPkgBuffer;
-		int arrivedPkgCount;
-		//completedPkgBuffer
+
+		int timeUnit;
+
+		PackageQueue processingPkgBuffer;
 		PackageQueue completedPkgBuffer;
-		int  completedPkgCount;
+		Package * currentPkg;
 
-		//variables to be used by the process
-		Package * currentPkg; // usually is the first of proccessingPkgBuffer.
-
-		 int numUnitsProcessing;
-		// package.unit_number - package.units_worked = units left.
-
-		int getNumUnitsLeft();
-		double getPkgETA();
-
-		private:
+		int numPkgsProcessing;
+		int arrivedPkgCount;
+		int completedPkgCount;
+ 		int numUnitsProcessing;
 
 	};
 
