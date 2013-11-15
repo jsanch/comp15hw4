@@ -58,26 +58,28 @@ int Factory::run(){
 // Output:         	None
 //----------------------------------------------------------------------------
 void Factory::getPkgOrder(){
-	string str;
 	Package tempPkg;
 	tempPkg = initPackage(tempPkg);
-	// must handle no packages !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	while( !cin.eof()){
- 		 cin >> str;
- 		 if (str == "number"){
- 		 	cin >> tempPkg.order_number;
- 		 }
- 		 if (str == "with"){
- 		 	cin >> tempPkg.unit_number;
- 		 }
-		if (str == "time"){
- 		 	cin >> tempPkg.time_Arrived;
-			packageBufferQ.enqueue(tempPkg);
-			pkgCount++;
-			str = "null";
- 		 }
-	}
 
+  string junk;
+
+  cin >> junk;
+  while (junk == "Package")
+  {
+    cin >> junk;
+    cin >> junk;
+    cin >> tempPkg.order_number;
+    cin >> junk;
+    cin >> tempPkg.unit_number;;
+    cin >> junk;
+    cin >> junk;
+    cin >> junk;
+    cin >> junk;
+    cin >> tempPkg.time_Arrived;
+    packageBufferQ.enqueue(tempPkg);
+    pkgCount++;
+    cin >> junk;
+	}
 }
 
 //initializes package variables to zero
